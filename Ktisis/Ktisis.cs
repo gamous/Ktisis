@@ -14,6 +14,7 @@ using Ktisis.Structs.Actor;
 using Ktisis.History;
 using Ktisis.Events;
 using Ktisis.Overlay;
+using FFXIVClientStructs;
 
 namespace Ktisis {
 	public sealed class Ktisis : IDalamudPlugin {
@@ -33,6 +34,8 @@ namespace Ktisis {
 		public unsafe static Actor* Target => GPoseTarget != null ? (Actor*)GPoseTarget.Address : null;
 
 		public Ktisis(DalamudPluginInterface pluginInterface) {
+			Resolver.Initialize();
+
 			Services.Init(pluginInterface);
 			Configuration = pluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
 			UiBuilder = pluginInterface.UiBuilder;

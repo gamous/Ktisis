@@ -43,7 +43,7 @@ namespace Ktisis.Interface.Windows.ActorEdit {
 			.OrderBy(i => i.Shade).ThenBy(i => i.SubOrder);
 
 		public static Item? FindItem(object item, EquipSlot slot)
-			=> Items?.FirstOrDefault(i => (item is WeaponEquip ? i.IsWeapon() : i.IsEquippable(slot)) && i.IsEquipItem(item), null!);
+			=> Items?.FirstOrDefault(i => (item is WeaponEquip ? i.IsWeapon() : i.IsEquippable(slot)) && i.IsEquipItem(item));
 
 		public static EquipIndex SlotToIndex(EquipSlot slot) => (EquipIndex)(slot - ((int)slot >= 5 ? 3 : 2));
 

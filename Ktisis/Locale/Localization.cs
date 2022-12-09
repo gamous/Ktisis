@@ -16,8 +16,9 @@ namespace Ktisis.Localization {
 
 		public static List<UserLocale> Languages = new() {
 			UserLocale.English,
-			UserLocale.German
-		};
+			UserLocale.German,
+			UserLocale.SimplifiedChinese
+        };
 
 		public static UserLocale GetCurrent() {
 			return Ktisis.Configuration.Localization;
@@ -78,6 +79,7 @@ namespace Ktisis.Localization {
 		English = 0,
 		French = 1,
 		German = 2,
-		Japanese = 3
+		Japanese = 3,
+		SimplifiedChinese = 4
 	}
 }
