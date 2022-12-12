@@ -19,6 +19,9 @@ using Ktisis.Data.Files;
 using Ktisis.Data.Serialization;
 
 using static Ktisis.Data.Files.AnamCharaFile;
+using Dalamud.Logging;
+using Ktisis.Structs.Bones;
+using System.Collections.Generic;
 
 namespace Ktisis.Interface.Windows.Workspace
 {
@@ -359,20 +362,31 @@ namespace Ktisis.Interface.Windows.Workspace
 			var isUseless = trans == 0 || modes == 0;
 
 			if (isUseless) ImGui.BeginDisabled();
-			if (ImGui.Button("Import##ImportExportPose")) {
+			if (ImGui.Button("导入##ImportExportPose")) {
 				KtisisGui.FileDialogManager.OpenFileDialog(
-					"Importing Pose",
-					"Pose Files (.pose){.pose}",
+					"导入动作",
+					"动作文件 (.pose;.cmp){.pose,.cmp}",
 					(success, path) => {
 						if (!success) return;
 
 						var content = File.ReadAllText(path[0]);
-						var pose = JsonParser.Deserialize<PoseFile>(content);
+						bool isCMP = path[0].EndsWith(".cmp");
+						bool recoverState = false;
+
+                        var pose = isCMP ? CMPFile.Upgrade(content) : JsonParser.Deserialize<PoseFile>(content);
+
 						if (pose == null) return;
 
 						if (actor->Model == null) return;
 
-						var skeleton = actor->Model->Skeleton;
+						if (isCMP && trans.HasFlag(PoseTransforms.Position))
+						{
+                            // Temporary disable the position flag (cuz cmp doesnt have one)
+                            trans = trans.ToggleFlag(PoseTransforms.Position);
+							recoverState = true;
+                        }
+
+                        var skeleton = actor->Model->Skeleton;
 						if (skeleton == null) return;
 
 						pose.ConvertLegacyBones();
@@ -391,17 +405,23 @@ namespace Ktisis.Interface.Windows.Workspace
 								pose.Bones.ApplyToPartial(skeleton, p, trans);
 							}
 						}
-					},
+
+                        if (isCMP && recoverState)
+                        {
+                            // Turn it back on if needed
+                            trans = trans.ToggleFlag(PoseTransforms.Position);
+                        }
+                    },
 					1,
 					null
 				);
 			}
 			if (isUseless) ImGui.EndDisabled();
 			ImGui.SameLine();
-			if (ImGui.Button("Export##ImportExportPose")) {
+			if (ImGui.Button("导出##ImportExportPose")) {
 				KtisisGui.FileDialogManager.SaveFileDialog(
-					"Exporting Pose",
-					"Pose Files (.pose){.pose}",
+					"导出动作",
+					"动作文件 (.pose){.pose}",
 					"Untitled.pose",
 					".pose",
 					(success, path) => {
